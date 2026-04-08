@@ -104,15 +104,24 @@ export function NotesPanel({ notes, selection, onAddNote, onDeleteNote, onClearS
           <div>
             <p className="mb-1.5 text-xs font-medium text-muted-foreground">Color</p>
             <div className="flex gap-2">
-              {NOTE_COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  onClick={() => setColor(c.value)}
-                  className={`h-7 w-7 rounded-full bg-note-${c.value} transition-all ${color === c.value ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : "hover:scale-105"}`}
-                  title={c.label}
-                />
-              ))}
+              {NOTE_COLORS.map((c) => {
+                const bgMap: Record<string, string> = {
+                  peach: "bg-note-peach",
+                  mint: "bg-note-mint",
+                  lavender: "bg-note-lavender",
+                  sky: "bg-note-sky",
+                  rose: "bg-note-rose",
+                };
+                return (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => setColor(c.value)}
+                    className={`h-7 w-7 rounded-full ${bgMap[c.value]} transition-all ${color === c.value ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : "hover:scale-105"}`}
+                    title={c.label}
+                  />
+                );
+              })}
             </div>
           </div>
 
