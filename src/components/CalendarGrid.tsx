@@ -1,9 +1,10 @@
+import { motion, AnimatePresence } from "framer-motion";
 import { DayCell } from "@/components/DayCell";
 import { MonthSwitcher } from "@/components/MonthSwitcher";
 import { getDaysInMonth, getFirstDayOfMonth, isSameDay, getRangeDays, formatDate } from "@/lib/calendar-types";
 import type { CalendarNote, DateRange } from "@/lib/calendar-types";
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 interface CalendarGridProps {
   currentMonth: Date;
@@ -18,6 +19,12 @@ interface CalendarGridProps {
   onExtendSelection: (date: Date) => void;
   onEndSelection: () => void;
   onHover: (date: Date | null) => void;
+}
+
+// Adjust to Monday-start week
+function getMondayFirstDay(year: number, month: number): number {
+  const day = new Date(year, month, 1).getDay();
+  return day === 0 ? 6 : day - 1;
 }
 
 export function CalendarGrid({
@@ -37,7 +44,7 @@ export function CalendarGrid({
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const daysInMonth = getDaysInMonth(year, month);
-  const firstDay = getFirstDayOfMonth(year, month);
+  const firstDay = getMondayFirstDay(year, month);
   const today = new Date();
 
   const prevMonthDays = getDaysInMonth(year, month - 1);
@@ -56,57 +63,96 @@ export function CalendarGrid({
 
   const effectiveEnd = isSelecting && hoveredDate ? hoveredDate : selection.end;
   const rangeDays = getRangeDays(selection.start, effectiveEnd);
+  const monthKey = `${year}-${month}`;
 
   return (
     <div
-      className="rounded-2xl border border-border bg-card p-4 shadow-sm md:p-6"
+      className="p-4 md:p-6"
       onMouseLeave={() => onHover(null)}
     >
       <MonthSwitcher currentMonth={currentMonth} onPrev={onPrevMonth} onNext={onNextMonth} onToday={onToday} />
 
       {/* Selection tooltip */}
-      {selection.start && rangeDays > 0 && (
-        <div className="mt-3 flex items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-xs text-secondary-foreground animate-calendar-fade">
-          <span className="font-medium">
-            {formatDate(selection.start)}
-            {selection.end && !isSameDay(selection.start, selection.end) && ` → ${formatDate(effectiveEnd!)}`}
-          </span>
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary font-semibold">
-            {rangeDays} day{rangeDays > 1 ? "s" : ""}
-          </span>
-        </div>
-      )}
+      <AnimatePresence>
+        {selection.start && rangeDays > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="mt-3 overflow-hidden"
+          >
+            <div className="flex items-center gap-2 rounded-xl bg-primary/5 border border-primary/20 px-3 py-2 text-xs">
+              <span className="font-semibold text-primary">
+                {formatDate(selection.start)}
+                {selection.end && !isSameDay(selection.start, selection.end) && ` → ${formatDate(effectiveEnd!)}`}
+              </span>
+              <motion.span
+                className="rounded-full bg-primary px-2 py-0.5 text-primary-foreground font-bold"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              >
+                {rangeDays} day{rangeDays > 1 ? "s" : ""}
+              </motion.span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Weekday headers */}
-      <div className="mt-4 grid grid-cols-7 gap-1">
-        {WEEKDAYS.map((d) => (
-          <div key={d} className="pb-2 text-center text-xs font-medium text-muted-foreground">
+      <div className="mt-4 grid grid-cols-7 gap-0 border-b border-border pb-2">
+        {WEEKDAYS.map((d, i) => (
+          <div
+            key={d}
+            className={`text-center text-xs font-bold tracking-wider ${i >= 5 ? "text-primary" : "text-muted-foreground"}`}
+          >
             {d}
           </div>
         ))}
       </div>
 
       {/* Day cells */}
-      <div className="grid grid-cols-7 gap-1 animate-calendar-fade">
-        {cells.map(({ date, isCurrentMonth }) => (
-          <DayCell
-            key={date.toISOString()}
-            date={date}
-            isCurrentMonth={isCurrentMonth}
-            isToday={isSameDay(date, today)}
-            selection={selection}
-            isSelecting={isSelecting}
-            hoveredDate={hoveredDate}
-            notes={notes}
-            onMouseDown={onStartSelection}
-            onMouseEnter={(d) => {
-              onHover(d);
-              onExtendSelection(d);
-            }}
-            onMouseUp={onEndSelection}
-          />
-        ))}
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={monthKey}
+          className="grid grid-cols-7 gap-0 mt-1"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -30 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {cells.map(({ date, isCurrentMonth }, idx) => {
+            const dayOfWeek = date.getDay();
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            return (
+              <motion.div
+                key={date.toISOString()}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.008, duration: 0.2 }}
+              >
+                <DayCell
+                  date={date}
+                  isCurrentMonth={isCurrentMonth}
+                  isToday={isSameDay(date, today)}
+                  selection={selection}
+                  isSelecting={isSelecting}
+                  hoveredDate={hoveredDate}
+                  notes={notes}
+                  isWeekend={isWeekend}
+                  onMouseDown={onStartSelection}
+                  onMouseEnter={(d) => {
+                    onHover(d);
+                    onExtendSelection(d);
+                  }}
+                  onMouseUp={onEndSelection}
+                />
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
