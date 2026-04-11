@@ -1,9 +1,10 @@
-import { useRef, useCallback } from "react";
+import { useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DayCell } from "@/components/DayCell";
 import { MonthSwitcher } from "@/components/MonthSwitcher";
 import { getDaysInMonth, isSameDay, getRangeDays, formatDate } from "@/lib/calendar-types";
 import { getDateFromTouchEvent } from "@/lib/dateHelpers";
+import { getHolidaysForMonth } from "@/lib/holidays";
 import type { CalendarNote, DateRange } from "@/lib/calendar-types";
 
 const WEEKDAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
