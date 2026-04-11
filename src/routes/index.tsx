@@ -51,6 +51,7 @@ function Index() {
             >
               <CalendarGrid
                 currentMonth={store.currentMonth}
+                direction={store.direction}
                 selection={store.selection}
                 isSelecting={store.isSelecting}
                 hoveredDate={store.hoveredDate}
