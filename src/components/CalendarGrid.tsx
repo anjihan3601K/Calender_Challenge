@@ -51,6 +51,7 @@ export function CalendarGrid({
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getMondayFirstDay(year, month);
   const today = new Date();
+  const holidays = useMemo(() => getHolidaysForMonth(year, month), [year, month]);
 
   const prevMonthDays = getDaysInMonth(year, month - 1);
   const cells: { date: Date; isCurrentMonth: boolean }[] = [];
@@ -180,6 +181,7 @@ export function CalendarGrid({
                   hoveredDate={hoveredDate}
                   notes={notes}
                   isWeekend={isWeekend}
+                  holiday={isCurrentMonth ? holidays.get(date.getDate()) : undefined}
                   onMouseDown={onStartSelection}
                   onMouseEnter={(d) => {
                     onHover(d);
