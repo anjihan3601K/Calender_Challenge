@@ -79,6 +79,7 @@ export function useCalendarStore() {
   const clearSelection = useCallback(() => {
     setSelection({ start: null, end: null });
     setIsSelecting(false);
+    setHoveredDate(null);
   }, []);
 
   return {
