@@ -10,6 +10,7 @@ const WEEKDAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 interface CalendarGridProps {
   currentMonth: Date;
+  direction: 1 | -1;
   selection: DateRange;
   isSelecting: boolean;
   hoveredDate: Date | null;
@@ -30,6 +31,7 @@ function getMondayFirstDay(year: number, month: number): number {
 
 export function CalendarGrid({
   currentMonth,
+  direction,
   selection,
   isSelecting,
   hoveredDate,
@@ -127,18 +129,37 @@ export function CalendarGrid({
       </div>
 
       {/* Day cells grid */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={monthKey}
-          ref={gridRef}
-          className="mt-1 grid grid-cols-7 gap-0"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -40 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={onEndSelection}
-        >
+      <div style={{ perspective: "1200px" }}>
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={monthKey}
+            ref={gridRef}
+            className="mt-1 grid grid-cols-7 gap-0"
+            custom={direction}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            variants={{
+              enter: (dir: number) => ({
+                rotateX: dir > 0 ? -90 : 90,
+                opacity: 0,
+                transformOrigin: dir > 0 ? "bottom center" : "top center",
+              }),
+              center: {
+                rotateX: 0,
+                opacity: 1,
+                transformOrigin: "center center",
+              },
+              exit: (dir: number) => ({
+                rotateX: dir > 0 ? 90 : -90,
+                opacity: 0,
+                transformOrigin: dir > 0 ? "top center" : "bottom center",
+              }),
+            }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={onEndSelection}
+          >
           {cells.map(({ date, isCurrentMonth }, idx) => {
             const dayOfWeek = date.getDay();
             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
@@ -169,7 +190,8 @@ export function CalendarGrid({
             );
           })}
         </motion.div>
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
