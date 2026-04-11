@@ -83,10 +83,10 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
         </motion.span>
       </div>
 
-      {/* Empty state — ruled lines */}
-      {!hasSelection && !isAdding && sortedNotes.length === 0 && (
+      {/* Empty state — ruled lines (only when no notes globally) */}
+      {!hasSelection && !isAdding && notes.length === 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-0">
-          {Array.from({ length: 8 }).map((_, i) => (
+          {Array.from({ length: 6 }).map((_, i) => (
             <motion.div
               key={i}
               className="border-b border-muted-foreground/10 py-3"
