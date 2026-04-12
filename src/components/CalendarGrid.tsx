@@ -1,5 +1,5 @@
 import { useMemo, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { DayCell } from "@/components/DayCell";
 import { MonthSwitcher } from "@/components/MonthSwitcher";
 import { getDaysInMonth, isSameDay, getRangeDays, formatDate } from "@/lib/calendar-types";
