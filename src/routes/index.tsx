@@ -94,6 +94,10 @@ function Index() {
                 <div className="border-t border-border p-3 lg:border-t-0 lg:border-l">
                   <HolidayLegend currentMonth={store.currentMonth} />
                 </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </motion.div>
 
         {/* Footer hint */}
         <motion.p
