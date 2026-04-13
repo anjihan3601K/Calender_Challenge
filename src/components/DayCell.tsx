@@ -60,15 +60,7 @@ export function DayCell({
       base += " text-foreground";
     }
 
-    if (isSingleDay) {
-      base += " bg-primary text-primary-foreground rounded-xl font-bold shadow-md";
-    } else if (isRangeStart) {
-      base += " bg-primary text-primary-foreground rounded-l-xl font-bold shadow-md";
-    } else if (isRangeEnd) {
-      base += " bg-primary text-primary-foreground rounded-r-xl font-bold shadow-md";
-    } else if (inRange) {
-      base += " bg-calendar-selection";
-    }
+    // No visual highlighting for selected range
 
     if (isToday && !isEndpoint) {
       base += " font-bold";
