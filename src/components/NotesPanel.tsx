@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Sparkles, BookOpen } from "lucide-react";
+import { Plus, Sparkles, BookOpen, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteCard } from "@/components/NoteCard";
 import { NOTE_COLORS, EMOJIS, formatDate, toISODateString, getRangeDays } from "@/lib/calendar-types";
-import type { CalendarNote, DateRange, NoteColor } from "@/lib/calendar-types";
+import type { CalendarNote, DateRange, NoteColor, NoteType } from "@/lib/calendar-types";
 
 interface NotesPanelProps {
   notes: CalendarNote[];
@@ -21,6 +21,7 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
   const [text, setText] = useState("");
   const [emoji, setEmoji] = useState("📝");
   const [color, setColor] = useState<NoteColor>("peach");
+  const [noteType, setNoteType] = useState<NoteType>("memory");
 
   const hasSelection = selection.start && selection.end;
   const rangeDays = getRangeDays(selection.start, selection.end);
@@ -35,10 +36,12 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
       text: text.trim(),
       emoji,
       color,
+      type: noteType,
     });
     setText("");
     setEmoji("📝");
     setColor("peach");
+    setNoteType("memory");
     setIsAdding(false);
     onClearSelection();
   };
@@ -47,7 +50,6 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
   const month = currentMonth.getMonth();
   const monthKey = `${year}-${month}`;
 
-  // Filter notes that overlap with the current month
   const monthStart = new Date(year, month, 1);
   const monthEnd = new Date(year, month + 1, 0);
   const monthNotes = notes.filter((note) => {
@@ -58,6 +60,9 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
 
   const sortedNotes = [...monthNotes].sort((a, b) => b.startDate.localeCompare(a.startDate));
   const monthLabel = currentMonth.toLocaleDateString("en-US", { month: "long" });
+
+  const memories = sortedNotes.filter((n) => (n.type || "memory") === "memory");
+  const goals = sortedNotes.filter((n) => n.type === "goal");
 
   return (
     <div className="flex flex-col gap-4">
@@ -70,7 +75,7 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
           >
             <BookOpen className="h-4 w-4 text-primary" />
           </motion.div>
-          <h3 className="text-base font-bold uppercase tracking-tight text-foreground">Memories</h3>
+          <h3 className="text-base font-bold uppercase tracking-tight text-foreground">Memories & Goals</h3>
         </div>
         <motion.span
           className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary"
@@ -83,7 +88,7 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
         </motion.span>
       </div>
 
-      {/* Empty state — ruled lines (only when no notes globally) */}
+      {/* Empty state */}
       {!hasSelection && !isAdding && notes.length === 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-0">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -102,12 +107,12 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
             transition={{ delay: 0.4 }}
             className="pt-4 text-center text-xs text-muted-foreground/50"
           >
-            Select dates to create memories ✨
+            Select dates for memories or goals ✨
           </motion.p>
         </motion.div>
       )}
 
-      {/* Smart prompt — "Add note for this range?" */}
+      {/* Smart prompt */}
       <AnimatePresence>
         {hasSelection && !isAdding && (
           <motion.div
@@ -125,7 +130,7 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
                 <Sparkles className="h-4 w-4" />
               </motion.div>
               <span>
-                {rangeDays} day{rangeDays > 1 ? "s" : ""} selected — add a memory?
+                {rangeDays} day{rangeDays > 1 ? "s" : ""} selected
               </span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -134,9 +139,15 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
             </p>
             <div className="mt-3 flex gap-2">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.93 }}>
-                <Button size="sm" onClick={() => setIsAdding(true)} className="gap-1.5 rounded-full text-xs font-semibold">
+                <Button size="sm" onClick={() => { setNoteType("memory"); setIsAdding(true); }} className="gap-1.5 rounded-full text-xs font-semibold">
                   <Plus className="h-3.5 w-3.5" />
-                  Add Memory
+                  Memory
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.93 }}>
+                <Button size="sm" variant="outline" onClick={() => { setNoteType("goal"); setEmoji("🎯"); setIsAdding(true); }} className="gap-1.5 rounded-full text-xs font-semibold">
+                  <Target className="h-3.5 w-3.5" />
+                  Goal
                 </Button>
               </motion.div>
               <Button size="sm" variant="ghost" onClick={onClearSelection} className="rounded-full text-xs">
@@ -157,10 +168,14 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-md"
           >
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {noteType === "goal" ? <Target className="h-3.5 w-3.5" /> : <BookOpen className="h-3.5 w-3.5" />}
+              {noteType === "goal" ? "New Goal" : "New Memory"}
+            </div>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="What's the memory?"
+              placeholder={noteType === "goal" ? "What's the goal?" : "What's the memory?"}
               className="w-full resize-none rounded-lg border-0 bg-secondary p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
               rows={3}
               autoFocus
@@ -215,10 +230,10 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
             <div className="flex gap-2 pt-1">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }}>
                 <Button size="sm" onClick={handleSubmit} disabled={!text.trim()} className="rounded-full text-xs font-semibold">
-                  Save Memory
+                  Save {noteType === "goal" ? "Goal" : "Memory"}
                 </Button>
               </motion.div>
-              <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)} className="rounded-full text-xs">
+              <Button size="sm" variant="ghost" onClick={() => { setIsAdding(false); onClearSelection(); }} className="rounded-full text-xs">
                 Cancel
               </Button>
             </div>
@@ -226,23 +241,37 @@ export function NotesPanel({ notes, currentMonth, direction, selection, onAddNot
         )}
       </AnimatePresence>
 
-      {/* Notes list */}
+      {/* Notes list grouped */}
       <div className="space-y-3">
+        {goals.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <Target className="h-3 w-3" /> Goals
+            </div>
+            {goals.map((note, i) => (
+              <motion.div key={note.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                <NoteCard note={note} onDelete={onDeleteNote} />
+              </motion.div>
+            ))}
+          </div>
+        )}
+        {memories.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <BookOpen className="h-3 w-3" /> Memories
+            </div>
+            {memories.map((note, i) => (
+              <motion.div key={note.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                <NoteCard note={note} onDelete={onDeleteNote} />
+              </motion.div>
+            ))}
+          </div>
+        )}
         {sortedNotes.length === 0 && !hasSelection && !isAdding && (
           <p className="py-6 text-center text-xs text-muted-foreground/50">
-            No memories for {monthLabel} yet ✨
+            No memories or goals for {monthLabel} yet ✨
           </p>
         )}
-        {sortedNotes.map((note, i) => (
-          <motion.div
-            key={note.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-          >
-            <NoteCard note={note} onDelete={onDeleteNote} />
-          </motion.div>
-        ))}
       </div>
     </div>
   );

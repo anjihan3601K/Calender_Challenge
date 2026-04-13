@@ -1,4 +1,5 @@
 export type NoteColor = "peach" | "mint" | "lavender" | "sky" | "rose";
+export type NoteType = "memory" | "goal";
 
 export interface CalendarNote {
   id: string;
@@ -7,6 +8,7 @@ export interface CalendarNote {
   text: string;
   emoji: string;
   color: NoteColor;
+  type?: NoteType; // defaults to "memory" for backward compat
 }
 
 export interface DateRange {
