@@ -56,22 +56,29 @@ function Index() {
                   }),
                 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="grid gap-0 lg:grid-cols-[260px_1fr_220px]"
               >
-                {/* Notes sidebar */}
-                <div className="border-b border-border bg-surface-warm/50 p-4 md:p-5 lg:border-b-0 lg:border-r">
-                  <NotesPanel
-                    notes={store.notes}
-                    currentMonth={store.currentMonth}
-                    direction={store.direction}
-                    selection={store.selection}
-                    onAddNote={store.addNote}
-                    onDeleteNote={store.deleteNote}
-                    onClearSelection={store.clearSelection}
-                  />
+                {/* Top row: Notes + Holidays side by side */}
+                <div className="grid gap-0 lg:grid-cols-[1fr_1fr]">
+                  {/* Notes sidebar */}
+                  <div className="border-b border-border bg-surface-warm/50 p-4 md:p-5 lg:border-b-0 lg:border-r">
+                    <NotesPanel
+                      notes={store.notes}
+                      currentMonth={store.currentMonth}
+                      direction={store.direction}
+                      selection={store.selection}
+                      onAddNote={store.addNote}
+                      onDeleteNote={store.deleteNote}
+                      onClearSelection={store.clearSelection}
+                    />
+                  </div>
+
+                  {/* Holiday legend */}
+                  <div className="border-b border-border p-4 md:p-5">
+                    <HolidayLegend currentMonth={store.currentMonth} />
+                  </div>
                 </div>
 
-                {/* Calendar grid */}
+                {/* Calendar grid full width below */}
                 <div>
                   <CalendarGrid
                     currentMonth={store.currentMonth}
@@ -88,11 +95,6 @@ function Index() {
                     onEndSelection={store.endSelection}
                     onHover={store.setHoveredDate}
                   />
-                </div>
-
-                {/* Holiday legend sidebar */}
-                <div className="border-t border-border p-3 lg:border-t-0 lg:border-l">
-                  <HolidayLegend currentMonth={store.currentMonth} />
                 </div>
               </motion.div>
             </AnimatePresence>
