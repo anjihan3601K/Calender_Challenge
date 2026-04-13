@@ -139,7 +139,7 @@ export function DayCell({
       {/* Note indicator dot */}
       {hasNotes && !holiday && (
         <motion.span
-          className={`absolute bottom-0.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full ${isEndpoint ? "bg-primary-foreground" : "bg-primary"}`}
+          className="absolute bottom-0.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-primary"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 500, damping: 25 }}
