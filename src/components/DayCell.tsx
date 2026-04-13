@@ -60,15 +60,7 @@ export function DayCell({
       base += " text-foreground";
     }
 
-    if (isSingleDay) {
-      base += " bg-primary text-primary-foreground rounded-xl font-bold shadow-md";
-    } else if (isRangeStart) {
-      base += " bg-primary text-primary-foreground rounded-l-xl font-bold shadow-md";
-    } else if (isRangeEnd) {
-      base += " bg-primary text-primary-foreground rounded-r-xl font-bold shadow-md";
-    } else if (inRange) {
-      base += " bg-calendar-selection";
-    }
+    // No visual highlighting for selected range
 
     if (isToday && !isEndpoint) {
       base += " font-bold";
@@ -143,20 +135,11 @@ export function DayCell({
         />
       )}
 
-      {/* Selection glow effect */}
-      {isEndpoint && (
-        <motion.span
-          className="absolute inset-0 rounded-xl bg-primary/20 blur-md"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1.3, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 20 }}
-        />
-      )}
 
       {/* Note indicator dot */}
       {hasNotes && !holiday && (
         <motion.span
-          className={`absolute bottom-0.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full ${isEndpoint ? "bg-primary-foreground" : "bg-primary"}`}
+          className="absolute bottom-0.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-primary"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 500, damping: 25 }}
