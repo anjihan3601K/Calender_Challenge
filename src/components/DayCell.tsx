@@ -135,15 +135,6 @@ export function DayCell({
         />
       )}
 
-      {/* Selection glow effect */}
-      {isEndpoint && (
-        <motion.span
-          className="absolute inset-0 rounded-xl bg-primary/20 blur-md"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1.3, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 20 }}
-        />
-      )}
 
       {/* Note indicator dot */}
       {hasNotes && !holiday && (
