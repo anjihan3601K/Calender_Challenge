@@ -56,7 +56,7 @@ function Index() {
                   }),
                 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="grid gap-0 lg:grid-cols-[280px_1fr]"
+                className="grid gap-0 lg:grid-cols-[260px_1fr_220px]"
               >
                 {/* Notes sidebar */}
                 <div className="border-b border-border bg-surface-warm/50 p-4 md:p-5 lg:border-b-0 lg:border-r">
@@ -89,13 +89,15 @@ function Index() {
                     onHover={store.setHoveredDate}
                   />
                 </div>
+
+                {/* Holiday legend sidebar */}
+                <div className="border-t border-border p-3 lg:border-t-0 lg:border-l">
+                  <HolidayLegend currentMonth={store.currentMonth} />
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>
         </motion.div>
-
-        {/* Holiday legend */}
-        <HolidayLegend currentMonth={store.currentMonth} />
 
         {/* Footer hint */}
         <motion.p
